@@ -1,0 +1,15 @@
+{
+  "name": "ts3bannergen",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jimp": "^0.9.3",
+    "steamapi": "^2.0.7"
+  }
+}
