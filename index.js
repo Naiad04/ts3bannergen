@@ -1,16 +1,24 @@
 // End image size should be 950x300 for best results in a 1920x1080 full screen
 
 var http = require('http');
-const SteamAPI = require('steamapi');
+//const SteamAPI = require('steamapi');
 //const steam = new SteamAPI('B1F2E9BA530F88ACC7B8E19C384C932E');
 //const steamIds = ["76561198101990975", "76561198213975395", "76561198073809055", "76561198128938401", "76561198122620661"];
 var cache = {
     updatedAt: 0,
-    image: null
+    image: null,
+    popImageUrl: "./pics/emptyPopImage.png"
 }
 
-http.createServer(function (req, res) {
-    res.writeHead(200, { 'Content-Type': 'image/png' });
+const express = require('express');
+const app = express();
+const port = 3232;
+
+app.use(express.urlencoded());
+
+app.get('/', (req, res) => {
+    res.header("Content-Type", "image/png");
+    res.statusCode = 200;
     if (cache.updatedAt < Date.now() - 30000) { // cache for 30 sec
         updateCache(() => {
             res.write(cache.image);
@@ -20,7 +28,19 @@ http.createServer(function (req, res) {
         res.write(cache.image);
         res.end();
     }
-}).listen(3232);
+});
+
+app.post('/',(req,res) =>{
+    if(req.body.updateImage){
+        cache.popImageUrl = req.body.updateImage;
+        res.end();
+    }else{
+        res.end(500); // probably not the right code I just typed a random server error.
+    }
+});
+
+app.listen(port, () => console.log(`TS3 Banner Generator listening on port ${port}!`));
+
 
 function updateCache(cb) {
     var Jimp = require('jimp');
@@ -33,6 +53,8 @@ function updateCache(cb) {
         for (let i = 0; i < 4; i++) {
             promises.push(Jimp.read("./pics/" + digitalClock[i] + ".gif"))
         }
+        
+        promises.push(Jimp.read(cache.popImageUrl));
 
         Promise.all(promises).then(function (images) {
             var x = 0;
@@ -40,6 +62,11 @@ function updateCache(cb) {
                 img.composite(images[i], x, 0);
                 x += 75;
             }
+
+            let ratio = images[4].getWidth() / images[4].getHeight(); // Calculate Aspect Ratio
+            images[4].resize(ratio*300,300); // max height would be 300 pixels for optimal results.
+
+            img.composite(images[4],x)
 
             img.getBuffer(Jimp.MIME_PNG, (err, resultImage) => {
                 if (err) console.err(err);
@@ -51,27 +78,6 @@ function updateCache(cb) {
         
     });
 }
-
-function initPlugin(plugin) {
-    const { TeamSpeak } = require("ts3-nodejs-library");
-    TeamSpeak.connect({
-        host: config.Query.host,
-        queryport: config.Query.port, //optional
-        //serverport: 9987,
-        username: config.Query.username,
-        password: config.Query.password,
-        nickname: "test"
-    }).then(async teamspeak => {
-        teamspeak.useBySid(plugin.activeServerId).then(async () => {
-            plugin.main(teamspeak);
-        });
-
-    }).catch(e => {
-        console.log("An error occured while trying to connect to TS3 Query!")
-        console.error(e)
-    });
-}
-
 
 function createDigital() {
     var now = new Date();
