@@ -32,6 +32,14 @@ app.get('/', (req, res) => {
 
 app.post('/',(req,res) =>{
     if(req.body.updateImage){
+
+        if(req.body.updateImage == "default"){
+            cache.popImageUrl = "./pics/emptyPopImage.png"; //Default popimage url;
+            res.end();
+            return;
+        }
+
+
         cache.popImageUrl = req.body.updateImage;
         res.end();
     }else{
@@ -82,7 +90,7 @@ function updateCache(cb) {
 function createDigital() {
     var now = new Date();
     var minutes = zeroPad(now.getUTCMinutes());
-    var hours = zeroPad(now.getUTCHours() +3); // +3 because of turkey GMT+3
+    var hours = zeroPad((now.getUTCHours() +3) % 24); // +3 because of turkey GMT+3
     return hours + minutes;
 }
 
