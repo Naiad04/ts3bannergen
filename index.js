@@ -66,7 +66,7 @@ function updateCache(cb) {
             let ratio = images[4].getWidth() / images[4].getHeight(); // Calculate Aspect Ratio
             images[4].resize(ratio*300,300); // max height would be 300 pixels for optimal results.
 
-            img.composite(images[4],x)
+            img.composite(images[4],x,0)
 
             img.getBuffer(Jimp.MIME_PNG, (err, resultImage) => {
                 if (err) console.err(err);
