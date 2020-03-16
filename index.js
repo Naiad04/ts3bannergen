@@ -1,6 +1,6 @@
 // End image size should be 950x300 for best results in a 1920x1080 full screen
 
-var http = require('http');
+//var http = require('http');
 //const SteamAPI = require('steamapi');
 //const steam = new SteamAPI('B1F2E9BA530F88ACC7B8E19C384C932E');
 //const steamIds = ["76561198101990975", "76561198213975395", "76561198073809055", "76561198128938401", "76561198122620661"];
