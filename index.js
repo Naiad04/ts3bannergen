@@ -3,11 +3,7 @@
 //const SteamAPI = require('steamapi');
 //const steam = new SteamAPI('B1F2E9BA530F88ACC7B8E19C384C932E');
 //const steamIds = ["76561198101990975", "76561198213975395", "76561198073809055", "76561198128938401", "76561198122620661"];
-var cache = {
-    updatedAt: 0,
-    image: null,
-    popImageUrl: "./pics/emptyPopImage.png"
-}
+var popImageUrl = "./pics/emptyPopImage.png";
 
 const express = require('express');
 const app = express();
@@ -17,28 +13,22 @@ app.use(express.urlencoded());
 app.get('/', (req, res) => {
     res.header("Content-Type", "image/png");
     res.statusCode = 200;
-    if (cache.updatedAt < Date.now() - 30000) { // cache for 30 sec
-        updateCache(() => {
-            res.write(cache.image);
-            res.end();
-        });
-    } else {
-        res.write(cache.image);
+    createImage(function (image){
+        res.write(image);
         res.end();
-    }
+    });
 });
 
 app.post('/',(req,res) =>{
     if(req.body.updateImage){
 
         if(req.body.updateImage == "default"){
-            cache.popImageUrl = "./pics/emptyPopImage.png"; //Default popimage url;
+            popImageUrl = "./pics/emptyPopImage.png"; //Default popimage url;
             res.end();
             return;
         }
 
-
-        cache.popImageUrl = req.body.updateImage;
+        popImageUrl = req.body.updateImage;
         res.end();
     }else{
         res.end(500); // probably not the right code I just typed a random server error.
@@ -48,7 +38,7 @@ app.post('/',(req,res) =>{
 app.listen(3232, () => console.log(`TS3 Banner Generator listening on port 3232!`));
 
 
-function updateCache(cb) {
+function createImage(cb) {
     var Jimp = require('jimp');
 
     // open the base file
@@ -60,7 +50,7 @@ function updateCache(cb) {
             promises.push(Jimp.read("./pics/" + digitalClock[i] + ".gif"))
         }
         
-        promises.push(Jimp.read(cache.popImageUrl));
+        promises.push(Jimp.read(popImageUrl));
 
         Promise.all(promises).then(function (images) {
             var x = 0;
@@ -76,9 +66,7 @@ function updateCache(cb) {
 
             img.getBuffer(Jimp.MIME_PNG, (err, resultImage) => {
                 if (err) console.err(err);
-                cache.image = resultImage;
-                cache.updatedAt = Date.now();
-                cb();
+                cb(resultImage);
             });
         });
         
