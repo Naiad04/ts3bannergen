@@ -4,7 +4,7 @@ module.exports = {
     script: 'index.js',
 
     // Options reference: https://pm2.keymetrics.io/docs/usage/application-declaration/
-    args: '',
+    node_args: '--expose-gc',
     instances: 1,
     autorestart: true,
     watch: false,

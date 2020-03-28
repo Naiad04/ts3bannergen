@@ -16,6 +16,7 @@ app.get('/', (req, res) => {
     createImage(function (image){
         res.write(image);
         res.end();
+        if (global.gc) {global.gc();} // Force garbage collection
     });
 });
 
@@ -68,6 +69,10 @@ function createImage(cb) {
                 if (err) console.err(err);
                 cb(resultImage);
             });
+        }).catch(function(reason){
+            console.log("Error while gathering images:");
+            console.error(reason);
+            process.exit(1); //Exit with a fail code.
         });
         
     });
