@@ -4,6 +4,7 @@ var popImageUrl = "./pics/emptyPopImage.png";
 
 const express = require('express');
 const app = express();
+const PORT = 3232;
 
 app.use(express.urlencoded());
 
@@ -36,7 +37,7 @@ app.post('/', (req, res) => {
     }
 });
 
-app.listen(3232, () => console.log(`TS3 Banner Generator listening on port 3232!`));
+app.listen(PORT, () => console.log(`TS3 Banner Generator listening on port ${PORT}!`));
 
 
 function createImage(cb) {
