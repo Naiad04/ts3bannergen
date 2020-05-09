@@ -13,17 +13,20 @@ app.use(express.urlencoded());
 app.get('/', (req, res) => {
     res.header("Content-Type", "image/png");
     res.statusCode = 200;
-    createImage(function (image){
+    createImage(function (image) {
         res.write(image);
         res.end();
-        if (global.gc) {global.gc();} // Force garbage collection
+        if (global.gc) { global.gc(); } // Force garbage collection
     });
 });
 
-app.post('/',(req,res) =>{
-    if(req.body.updateImage){
-
-        if(req.body.updateImage == "default"){
+app.post('/', (req, res) => {
+    if (req.body.updateImage) {
+        if (req.connection.localAddress !== req.connection.remoteAddress) {
+            res.end();
+            return;
+        }
+        if (req.body.updateImage == "default") {
             popImageUrl = "./pics/emptyPopImage.png"; //Default popimage url;
             res.end();
             return;
@@ -31,7 +34,7 @@ app.post('/',(req,res) =>{
 
         popImageUrl = req.body.updateImage;
         res.end();
-    }else{
+    } else {
         res.end(500); // probably not the right code I just typed a random server error.
     }
 });
@@ -50,7 +53,7 @@ function createImage(cb) {
         for (let i = 0; i < 4; i++) {
             promises.push(Jimp.read("./pics/" + digitalClock[i] + ".gif"))
         }
-        
+
         promises.push(Jimp.read(popImageUrl));
 
         Promise.all(promises).then(function (images) {
@@ -61,27 +64,27 @@ function createImage(cb) {
             }
 
             let ratio = images[4].getWidth() / images[4].getHeight(); // Calculate Aspect Ratio
-            images[4].resize(ratio*300,300); // max height would be 300 pixels for optimal results.
+            images[4].resize(ratio * 300, 300); // max height would be 300 pixels for optimal results.
 
-            img.composite(images[4],x,0)
+            img.composite(images[4], x, 0)
 
             img.getBuffer(Jimp.MIME_PNG, (err, resultImage) => {
                 if (err) console.err(err);
                 cb(resultImage);
             });
-        }).catch(function(reason){
+        }).catch(function (reason) {
             console.log("Error while gathering images:");
             console.error(reason);
             process.exit(1); //Exit with a fail code.
         });
-        
+
     });
 }
 
 function createDigital() {
     var now = new Date();
     var minutes = zeroPad(now.getUTCMinutes());
-    var hours = zeroPad((now.getUTCHours() +3) % 24); // +3 because of turkey GMT+3
+    var hours = zeroPad((now.getUTCHours() + 3) % 24); // +3 because of turkey GMT+3
     return hours + minutes;
 }
 
