@@ -1,6 +1,8 @@
 // End image size should be 950x300 for best results in a 1920x1080 full screen
 
 var popImageUrl = "./pics/emptyPopImage.png";
+const popImageSaveFile = "./image.save";
+popImageUrl = getPopImageUrl(popImageSaveFile);
 
 const express = require('express');
 const app = express();
@@ -32,6 +34,7 @@ app.post('/', (req, res) => {
 
         popImageUrl = req.body.updateImage;
         res.end();
+        setPopImageUrl(popImageSaveFile,popImageUrl);
     } else {
         res.end(500); // probably not the right code I just typed a random server error.
     }
@@ -77,6 +80,20 @@ function createImage(cb) {
         });
 
     });
+}
+
+function setPopImageUrl(saveFile,url){
+    var fs = require('fs');
+    fs.writeFileSync(saveFile, url.toString());
+}
+
+function getPopImageUrl(saveFile){
+    var fs = require('fs');
+    if(!fs.existsSync(saveFile)){
+    return popImageUrl; //Global usage
+    }else{
+    return fs.readFileSync(saveFile).toString();
+    }
 }
 
 function createDigital() {
